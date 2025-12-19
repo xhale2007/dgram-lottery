@@ -397,10 +397,10 @@
                 <h2>⚠️ Terms and Conditions</h2>
                 
                 <h3>Educational Purpose Only</h3>
-                <p>This lottery smart contract is provided <strong>for educational and entertainment purposes only</strong>. By participating, you acknowledge that this is an experimental decentralized application (dApp) demonstrating blockchain technology and smart contract functionality.</p>
+                <p>This draw smart contract is provided <strong>for educational and entertainment purposes only</strong>. By participating, you acknowledge that this is an experimental decentralized application (dApp) demonstrating blockchain technology and smart contract functionality.</p>
 
                 <h3>Pseudo-Random Number Generation</h3>
-                <p>This lottery uses <strong>pseudo-random number generation</strong> based on blockchain data sources including:</p>
+                <p>This draw uses <strong>pseudo-random number generation</strong> based on blockchain data sources including:</p>
                 <ul>
                     <li>Block timestamp and block number</li>
                     <li>Avalanche's prevrandao (randomness beacon)</li>
@@ -414,7 +414,7 @@
                 </div>
 
                 <h3>Decentralized & Non-Custodial</h3>
-                <p>This lottery is <strong>fully decentralized</strong>:</p>
+                <p>This draw is <strong>fully decentralized</strong>:</p>
                 <ul>
                     <li>No one controls the smart contract after deployment</li>
                     <li>Winner selection is automatic and deterministic</li>
@@ -459,7 +459,7 @@
                 <div class="checkbox-container">
                     <input type="checkbox" id="acceptTerms">
                     <label for="acceptTerms">
-                        I have read, understood, and agree to these terms and conditions. I understand this is for educational purposes only and uses pseudo-random number generation. I accept all risks and understand that no one can manipulate the decentralized lottery results.
+                        I have read, understood, and agree to these terms and conditions. I understand this is for educational purposes only and uses pseudo-random number generation. I accept all risks and understand that no one can manipulate the decentralized draw results.
                     </label>
                 </div>
 
@@ -489,11 +489,11 @@
         </div>
 
         <div class="card">
-            <h2>🎰 Current Lottery Status</h2>
+            <h2>🎰 Current Draw Status</h2>
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-label">Current Round</div>
-                    <div class="stat-value" id="lotteryId">-</div>
+                    <div class="stat-value" id="drawId">-</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">Players Entered</div>
@@ -509,7 +509,7 @@
                 </div>
             </div>
 
-            <div id="lotteryStatus"></div>
+            <div id="drawStatus"></div>
 
             <div class="input-group">
                 <label for="entryCount">Number of Entries (100 DGRAM each):</label>
@@ -517,7 +517,7 @@
             </div>
 
             <button id="enterBtn" class="btn" disabled>
-                🎯 Enter Lottery (Send DGRAM)
+                🎯 Enter Draw (Send DGRAM)
             </button>
 
             <div id="status"></div>
@@ -561,20 +561,13 @@
             </div>
         </div>
 
-        <div class="card contract-info">
-            <h3>📋 Contract Information</h3>
-            <p><strong>Lottery Contract Address:</strong></p>
-            <div class="contract-address" id="contractAddress">
-                Configure contract address in the code
-            </div>
-            <p style="margin-top: 15px;"><em>DGRAM is the native token - no token contract needed!</em></p>
-        </div>
+
     </div>
 
     <script>
         // CONFIGURATION - UPDATE THESE VALUES AFTER DEPLOYMENT
         const CONFIG = {
-            LOTTERY_CONTRACT: '0x2845Dd10cE6a8E2CB3AEEb4c9593079d56592316',
+            DRAW_CONTRACT: '0x2845Dd10cE6a8E2CB3AEEb4c9593079d56592316',
             CHAIN_ID: '0x3C8', // 968 in hex
             RPC_URL: 'https://mainnet.datagram.network/rpc',
             EXPLORER_URL: 'https://explorer.datagram.network',
@@ -584,19 +577,19 @@
         const ENTRY_FEE = ethers.parseEther('100'); // 100 DGRAM
 
         // ABIs
-        const LOTTERY_ABI = [
-            "function enterLottery() external payable",
+        const DRAW_ABI = [
+            "function enterDraw() external payable",
             "function getPlayers() external view returns (address[])",
             "function getPlayerCount() external view returns (uint256)",
             "function getPlayerEntries(address) external view returns (uint256)",
-            "function lotteryId() external view returns (uint256)",
-            "function lotteryInProgress() external view returns (bool)",
+            "function drawId() external view returns (uint256)",
+            "function drawInProgress() external view returns (bool)",
             "function getContractBalance() external view returns (uint256)",
-            "event PlayerEntered(address indexed player, uint256 lotteryId, uint256 entryNumber)",
-            "event WinnerSelected(address indexed winner, uint256 amount, uint256 lotteryId)"
+            "event PlayerEntered(address indexed player, uint256 drawId, uint256 entryNumber)",
+            "event WinnerSelected(address indexed winner, uint256 amount, uint256 drawId)"
         ];
 
-        let provider, signer, lotteryContract, userAddress;
+        let provider, signer, drawContract, userAddress;
         let termsAccepted = false;
 
         // Check if terms already accepted (stored in session)
@@ -626,7 +619,7 @@
 
         // Decline terms
         function declineTerms() {
-            alert('You must accept the terms to use this lottery. The page will now close.');
+            alert('You must accept the terms to use this draw. The page will now close.');
             window.close();
             // If window.close() doesn't work (some browsers block it), redirect away
             setTimeout(() => {
@@ -663,12 +656,11 @@
                     return;
                 }
 
-                lotteryContract = new ethers.Contract(CONFIG.LOTTERY_CONTRACT, LOTTERY_ABI, signer);
+                drawContract = new ethers.Contract(CONFIG.DRAW_CONTRACT, DRAW_ABI, signer);
 
                 document.getElementById('walletInfo').style.display = 'block';
                 document.getElementById('connectBtn').style.display = 'none';
                 document.getElementById('walletAddress').textContent = userAddress;
-                document.getElementById('contractAddress').textContent = CONFIG.LOTTERY_CONTRACT;
 
                 document.getElementById('enterBtn').disabled = false;
 
@@ -709,7 +701,7 @@
             }
         }
 
-        // Enter lottery with native DGRAM
+        // Enter draw with native DGRAM
         document.getElementById('enterBtn').addEventListener('click', async () => {
             try {
                 // Check if terms accepted
@@ -729,11 +721,11 @@
                     return;
                 }
 
-                showStatus(`Entering lottery with ${entries} entries...`, 'info');
+                showStatus(`Entering draw with ${entries} entries...`, 'info');
                 
                 // Enter multiple times if requested
                 for (let i = 0; i < entries; i++) {
-                    const tx = await lotteryContract.enterLottery({ value: ENTRY_FEE });
+                    const tx = await drawContract.enterDraw({ value: ENTRY_FEE });
                     showStatus(`Entry ${i+1}/${entries}: Waiting for confirmation...`, 'info');
                     await tx.wait();
                 }
@@ -742,7 +734,7 @@
                 await updateUI();
             } catch (error) {
                 console.error(error);
-                showStatus('Error entering lottery: ' + error.message, 'error');
+                showStatus('Error entering draw: ' + error.message, 'error');
             }
         });
 
@@ -756,11 +748,11 @@
                 console.log('Formatted balance:', ethers.formatEther(balance));
                 
                 console.log('=== CONTRACT DEBUG ===');
-                console.log('Contract address:', CONFIG.LOTTERY_CONTRACT);
+                console.log('Contract address:', CONFIG.DRAW_CONTRACT);
                 console.log('User address:', userAddress);
                 
                 // Check if contract exists
-                const code = await provider.getCode(CONFIG.LOTTERY_CONTRACT);
+                const code = await provider.getCode(CONFIG.DRAW_CONTRACT);
                 console.log('Contract code exists:', code !== '0x');
                 
                 if (code === '0x') {
@@ -769,27 +761,27 @@
                 }
                 
                 // Try to call contract functions one by one to see which fails
-                console.log('Calling lotteryId()...');
-                const lotteryId = await lotteryContract.lotteryId();
-                console.log('✓ lotteryId:', lotteryId.toString());
+                console.log('Calling drawId()...');
+                const drawId = await drawContract.drawId();
+                console.log('✓ drawId:', drawId.toString());
                 
                 console.log('Calling getPlayerCount()...');
-                const playerCount = await lotteryContract.getPlayerCount();
+                const playerCount = await drawContract.getPlayerCount();
                 console.log('✓ playerCount:', playerCount.toString());
                 
                 console.log('Calling getPlayers()...');
-                const players = await lotteryContract.getPlayers();
+                const players = await drawContract.getPlayers();
                 console.log('✓ players:', players);
                 
                 console.log('Calling getPlayerEntries()...');
-                const myEntries = await lotteryContract.getPlayerEntries(userAddress);
+                const myEntries = await drawContract.getPlayerEntries(userAddress);
                 console.log('✓ myEntries:', myEntries.toString());
                 
-                console.log('Calling lotteryInProgress()...');
-                const inProgress = await lotteryContract.lotteryInProgress();
+                console.log('Calling drawInProgress()...');
+                const inProgress = await drawContract.drawInProgress();
                 console.log('✓ inProgress:', inProgress);
 
-                document.getElementById('lotteryId').textContent = lotteryId.toString();
+                document.getElementById('drawId').textContent = drawId.toString();
                 document.getElementById('playerCount').textContent = `${playerCount}/10`;
                 document.getElementById('potSize').textContent = `${Number(playerCount) * 100} DGRAM`;
                 document.getElementById('myEntries').textContent = myEntries.toString();
@@ -799,12 +791,12 @@
                 document.getElementById('balance').textContent = parseFloat(formattedBalance).toFixed(4);
                 console.log('Displayed balance:', parseFloat(formattedBalance).toFixed(4));
 
-                // Update lottery status
-                const statusDiv = document.getElementById('lotteryStatus');
+                // Update draw status
+                const statusDiv = document.getElementById('drawStatus');
                 if (inProgress) {
                     statusDiv.innerHTML = '<div class="alert alert-warning">⏳ Drawing winner... Please wait for Chainlink VRF to select the winner!</div>';
                 } else if (playerCount == 10) {
-                    statusDiv.innerHTML = '<div class="alert alert-info">🎲 Lottery full! Requesting random number...</div>';
+                    statusDiv.innerHTML = '<div class="alert alert-info">🎲 Draw full! Requesting random number...</div>';
                 } else {
                     statusDiv.innerHTML = `<div class="alert alert-info">📢 ${10 - Number(playerCount)} more ${10 - Number(playerCount) === 1 ? 'player' : 'players'} needed to start the draw!</div>`;
                 }
@@ -828,21 +820,21 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            lotteryContract.on('PlayerEntered', async (player, lotteryId, entryNumber) => {
+            drawContract.on('PlayerEntered', async (player, drawId, entryNumber) => {
                 await updateUI();
                 if (player.toLowerCase() === userAddress.toLowerCase()) {
                     showStatus(`Entry confirmed! You are entry #${entryNumber}`, 'success');
                 }
             });
 
-            lotteryContract.on('WinnerSelected', async (winner, amount, lotteryId) => {
+            drawContract.on('WinnerSelected', async (winner, amount, drawId) => {
                 await updateUI();
                 await loadWinnersHistory();
                 const formattedAmount = ethers.formatEther(amount);
                 if (winner.toLowerCase() === userAddress.toLowerCase()) {
-                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM in Round #${lotteryId}!`, 'success');
+                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM in Round #${drawId}!`, 'success');
                 } else {
-                    showStatus(`Winner selected for Round #${lotteryId}: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
+                    showStatus(`Winner selected for Round #${drawId}: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
                 }
             });
         }
@@ -853,8 +845,8 @@
                 const currentBlock = await provider.getBlockNumber();
                 const fromBlock = Math.max(0, currentBlock - 10000); // Last ~10k blocks
                 
-                const filter = lotteryContract.filters.WinnerSelected();
-                const events = await lotteryContract.queryFilter(filter, fromBlock, currentBlock);
+                const filter = drawContract.filters.WinnerSelected();
+                const events = await drawContract.queryFilter(filter, fromBlock, currentBlock);
                 
                 const winnersDiv = document.getElementById('winnersHistory');
                 
@@ -869,7 +861,7 @@
                 winnersDiv.innerHTML = recentEvents.map(event => {
                     const winner = event.args.winner;
                     const amount = ethers.formatEther(event.args.amount);
-                    const roundId = event.args.lotteryId.toString();
+                    const roundId = event.args.drawId.toString();
                     const isYou = winner.toLowerCase() === userAddress.toLowerCase();
                     
                     return `
@@ -906,7 +898,7 @@
 
         // Update UI every 10 seconds
         setInterval(() => {
-            if (lotteryContract) {
+            if (drawContract) {
                 updateUI();
             }
         }, 10000);
