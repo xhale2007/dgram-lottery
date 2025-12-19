@@ -1,432 +1,541 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DGRAM Lottery - Win Big!</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGRAM Lottery - Win Big!</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body{
-      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height:100vh;
-      padding:20px;
-      color:#fff;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
 
-    .container{ max-width:900px; margin:0 auto; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-    header{ text-align:center; margin-bottom:40px; padding:20px; }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
 
-    h1{ font-size:3em; margin-bottom:10px; text-shadow:2px 2px 4px rgba(0,0,0,0.3); }
-    .subtitle{ font-size:1.2em; opacity:0.9; }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
 
-    .card{
-      background: rgba(255,255,255,0.95);
-      border-radius:20px;
-      padding:30px;
-      margin-bottom:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.3);
-      color:#333;
-    }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
 
-    .stats-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-      gap:20px;
-      margin-bottom:30px;
-    }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #333;
+        }
 
-    .stat-box{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding:20px;
-      border-radius:15px;
-      text-align:center;
-      color:white;
-    }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-    .stat-label{ font-size:0.9em; opacity:0.9; margin-bottom:5px; }
-    .stat-value{ font-size:2em; font-weight:bold; }
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+        }
 
-    .btn{
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color:white;
-      border:none;
-      padding:15px 30px;
-      border-radius:10px;
-      font-size:1.1em;
-      cursor:pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      width:100%;
-      font-weight:bold;
-    }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
 
-    .btn:hover:not(:disabled){ transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    .btn:disabled{ opacity:0.6; cursor:not-allowed; }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
 
-    .wallet-section{ text-align:center; margin-bottom:20px; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            font-weight: bold;
+        }
 
-    .wallet-address{
-      background:#f8f9fa;
-      padding:10px;
-      border-radius:8px;
-      font-family:monospace;
-      margin-top:10px;
-      word-break:break-all;
-    }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
 
-    .contract-info{
-      background:#e7f3ff;
-      padding:15px;
-      border-radius:10px;
-      margin-top:15px;
-      border-left:4px solid #667eea;
-      text-align:left;
-    }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-    .contract-address{
-      font-family:monospace;
-      word-break:break-all;
-      background:white;
-      padding:10px;
-      border-radius:5px;
-      margin-top:10px;
-      color:#333;
-    }
+        .btn-secondary {
+            background: #6c757d;
+        }
 
-    .players-list{ max-height:300px; overflow-y:auto; margin-top:20px; }
+        .wallet-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .player-entry{
-      background:#f8f9fa;
-      padding:10px;
-      margin-bottom:5px;
-      border-radius:5px;
-      display:flex;
-      justify-content:space-between;
-      font-family:monospace;
-      font-size:0.9em;
-    }
+        .wallet-address {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            word-break: break-all;
+        }
 
-    .alert{ padding:15px; border-radius:10px; margin-bottom:20px; }
-    .alert-info{ background:#d1ecf1; border-left:4px solid #0c5460; color:#0c5460; }
-    .alert-success{ background:#d4edda; border-left:4px solid #155724; color:#155724; }
-    .alert-warning{ background:#fff3cd; border-left:4px solid #856404; color:#856404; }
+        .contract-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
 
-    .prize-breakdown{ background:#fff3cd; padding:15px; border-radius:10px; margin-top:20px; }
+        .contract-address {
+            font-family: monospace;
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
 
-    .prize-item{
-      display:flex;
-      justify-content:space-between;
-      padding:5px 0;
-      border-bottom:1px solid #ddd;
-    }
-    .prize-item:last-child{ border-bottom:none; }
+        .players-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
 
-    .input-group{ margin:20px 0; }
-    .input-group label{ display:block; margin-bottom:5px; font-weight:bold; }
-    .input-group input{ width:100%; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:1em; }
+        .player-entry {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
 
-    #status{ min-height:20px; margin:10px 0; }
-  </style>
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #155724;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid #856404;
+            color: #856404;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .prize-breakdown {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .prize-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .prize-item:last-child {
+            border-bottom: none;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        #status {
+            min-height: 20px;
+            margin: 10px 0;
+        }
+    </style>
 </head>
-
 <body>
-  <div class="container">
-    <header>
-      <h1>🎰 DGRAM Lottery</h1>
-      <p class="subtitle">Enter for a chance to win 900 DGRAM!</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>🎰 DGRAM Lottery</h1>
+            <p class="subtitle">Enter for a chance to win 900 DGRAM!</p>
+        </header>
 
-    <div class="card">
-      <div class="wallet-section">
-        <button id="connectBtn" class="btn">Connect MetaMask</button>
-
-        <div id="walletInfo" style="display:none;">
-          <p><strong>Connected Wallet:</strong></p>
-          <div class="wallet-address" id="walletAddress"></div>
-
-          <p style="margin-top:10px;">
-            <strong>Your DGRAM Balance:</strong>
-            <span id="balance">0</span> DGRAM
-          </p>
-
-          <div class="contract-info">
-            <div><strong>Lottery Contract:</strong></div>
-            <div class="contract-address" id="contractAddress"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Current Lottery Status</h2>
-
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">Current Round</div>
-          <div class="stat-value" id="lotteryId">-</div>
-        </div>
-
-        <div class="stat-box">
-          <div class="stat-label">Players Entered</div>
-          <div class="stat-value" id="playerCount">0/10</div>
-        </div>
-
-        <div class="stat-box">
-          <div class="stat-label">Current Pot</div>
-          <div class="stat-value" id="potSize">0</div>
-        </div>
-
-        <div class="stat-box">
-          <div class="stat-label">Your Entries</div>
-          <div class="stat-value" id="myEntries">0</div>
-        </div>
-      </div>
-
-      <div id="lotteryStatus"></div>
-
-      <div class="input-group">
-        <label for="entryCount">Number of Entries (100 DGRAM each):</label>
-        <input type="number" id="entryCount" min="1" max="10" value="1" />
-      </div>
-
-      <button id="enterBtn" class="btn" disabled>
-        Enter Lottery (Send DGRAM)
-      </button>
-
-      <div id="status"></div>
-
-      <div class="prize-breakdown">
-        <h3>💰 Prize Breakdown (Per Round)</h3>
-        <div class="prize-item"><span>Entry Fee:</span><strong>100 DGRAM</strong></div>
-        <div class="prize-item"><span>Total Pot:</span><strong>1,000 DGRAM</strong></div>
-        <div class="prize-item"><span>Winner Prize (90%):</span><strong>900 DGRAM</strong></div>
-        <div class="prize-item"><span>Burned (5%):</span><strong>50 DGRAM</strong></div>
-        <div class="prize-item"><span>Platform Fee (5%):</span><strong>50 DGRAM</strong></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Current Players</h2>
-      <div id="playersList" class="players-list">
-        <p style="text-align:center; color:#999;">No players yet. Be the first!</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ✅ FIXED CONFIG: all strings where required
-    const CONFIG = {
-      LOTTERY_CONTRACT: "0x2BcdBAaE637f15f99FFa0D5c6CA6a4276F687e35",
-      CHAIN_ID: "0x3c8", // hex string
-      RPC_URL: "https://mainnet.datagram.network/rpc",
-      EXPLORER_URL: "https://explorer.datagram.network",
-      CHAIN_NAME: "Datagram"
-    };
-
-    const ENTRY_FEE = ethers.parseEther("100"); // 100 DGRAM (native)
-
-    const LOTTERY_ABI = [
-      "function enterLottery() external payable",
-      "function getPlayers() external view returns (address[])",
-      "function getPlayerCount() external view returns (uint256)",
-      "function getPlayerEntries(address) external view returns (uint256)",
-      "function lotteryId() external view returns (uint256)",
-      "function lotteryInProgress() external view returns (bool)",
-      "function getContractBalance() external view returns (uint256)",
-      "event PlayerEntered(address indexed player, uint256 lotteryId, uint256 entryNumber)",
-      "event WinnerSelected(address indexed winner, uint256 amount, uint256 lotteryId)"
-    ];
-
-    let provider, signer, lotteryContract, userAddress;
-
-    const connectBtn = document.getElementById("connectBtn");
-    const enterBtn = document.getElementById("enterBtn");
-
-    connectBtn.addEventListener("click", async () => {
-      try {
-        if (!window.ethereum) {
-          alert("Please install MetaMask!");
-          return;
-        }
-
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-
-        provider = new ethers.BrowserProvider(window.ethereum);
-        signer = await provider.getSigner();
-        userAddress = await signer.getAddress();
-
-        // ensure correct chain
-        const network = await provider.getNetwork();
-        const currentChainIdHex = "0x" + Number(network.chainId).toString(16);
-
-        if (currentChainIdHex.toLowerCase() !== CONFIG.CHAIN_ID.toLowerCase()) {
-          await switchNetwork();
-        }
-
-        lotteryContract = new ethers.Contract(CONFIG.LOTTERY_CONTRACT, LOTTERY_ABI, signer);
-
-        document.getElementById("walletInfo").style.display = "block";
-        connectBtn.style.display = "none";
-        document.getElementById("walletAddress").textContent = userAddress;
-        document.getElementById("contractAddress").textContent = CONFIG.LOTTERY_CONTRACT;
-
-        enterBtn.disabled = false;
-
-        await updateUI();
-        setupEventListeners();
-        showStatus("Connected successfully!", "success");
-      } catch (error) {
-        console.error(error);
-        showStatus("Error connecting: " + (error?.message || String(error)), "error");
-      }
-    });
-
-    async function switchNetwork() {
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: CONFIG.CHAIN_ID }]
-        });
-      } catch (error) {
-        if (error && error.code === 4902) {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: CONFIG.CHAIN_ID,
-              chainName: CONFIG.CHAIN_NAME,
-              rpcUrls: [CONFIG.RPC_URL],
-              nativeCurrency: { name: "DGRAM", symbol: "DGRAM", decimals: 18 },
-              blockExplorerUrls: [CONFIG.EXPLORER_URL]
-            }]
-          });
-        } else {
-          throw error;
-        }
-      }
-    }
-
-    enterBtn.addEventListener("click", async () => {
-      try {
-        const entries = Math.max(1, Math.min(10, parseInt(document.getElementById("entryCount").value, 10) || 1));
-        const totalCost = ENTRY_FEE * BigInt(entries);
-
-        const bal = await provider.getBalance(userAddress);
-        if (bal < totalCost) {
-          showStatus(`Insufficient balance! You need ${ethers.formatEther(totalCost)} DGRAM`, "warning");
-          return;
-        }
-
-        showStatus(`Entering lottery with ${entries} entr${entries === 1 ? "y" : "ies"}...`, "info");
-
-        for (let i = 0; i < entries; i++) {
-          const tx = await lotteryContract.enterLottery({ value: ENTRY_FEE });
-          showStatus(`Entry ${i + 1}/${entries}: Waiting for confirmation...`, "info");
-          await tx.wait();
-        }
-
-        showStatus(`Successfully entered ${entries} time(s)! Good luck! 🍀`, "success");
-        await updateUI();
-      } catch (error) {
-        console.error(error);
-        showStatus("Error entering lottery: " + (error?.message || String(error)), "error");
-      }
-    });
-
-    async function updateUI() {
-      try {
-        const [
-          lotteryId,
-          playerCount,
-          players,
-          myEntries,
-          balance,
-          inProgress
-        ] = await Promise.all([
-          lotteryContract.lotteryId(),
-          lotteryContract.getPlayerCount(),
-          lotteryContract.getPlayers(),
-          lotteryContract.getPlayerEntries(userAddress),
-          provider.getBalance(userAddress),
-          lotteryContract.lotteryInProgress()
-        ]);
-
-        const playerCountNum = Number(playerCount);
-
-        document.getElementById("lotteryId").textContent = lotteryId.toString();
-        document.getElementById("playerCount").textContent = `${playerCountNum}/10`;
-        document.getElementById("potSize").textContent = `${playerCountNum * 100} DGRAM`;
-        document.getElementById("myEntries").textContent = myEntries.toString();
-        document.getElementById("balance").textContent = ethers.formatEther(balance);
-
-        const statusDiv = document.getElementById("lotteryStatus");
-        if (inProgress) {
-          statusDiv.innerHTML = '<div class="alert alert-warning">⏳ Drawing winner... Please wait!</div>';
-        } else if (playerCountNum === 10) {
-          statusDiv.innerHTML = '<div class="alert alert-info">🎲 Lottery full! Requesting random number...</div>';
-        } else {
-          const remaining = 10 - playerCountNum;
-          statusDiv.innerHTML = `<div class="alert alert-info">📢 ${remaining} more ${remaining === 1 ? "player" : "players"} needed to start the draw!</div>`;
-        }
-
-        const playersList = document.getElementById("playersList");
-        if (!players || players.length === 0) {
-          playersList.innerHTML = '<p style="text-align:center; color:#999;">No players yet. Be the first!</p>';
-        } else {
-          playersList.innerHTML = players.map((addr, idx) => `
-            <div class="player-entry">
-              <span>Entry #${idx + 1}</span>
-              <span>${addr.substring(0, 6)}...${addr.substring(38)}</span>
+        <div class="card">
+            <div class="wallet-section">
+                <button id="connectBtn" class="btn">Connect MetaMask</button>
+                <div id="walletInfo" style="display: none;">
+                    <p><strong>Connected Wallet:</strong></p>
+                    <div class="wallet-address" id="walletAddress"></div>
+                    <p style="margin-top: 10px;"><strong>Your DGRAM Balance:</strong> <span id="balance">0</span> DGRAM</p>
+                </div>
             </div>
-          `).join("");
+        </div>
+
+        <div class="card">
+            <h2>Current Lottery Status</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Current Round</div>
+                    <div class="stat-value" id="lotteryId">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Players Entered</div>
+                    <div class="stat-value" id="playerCount">0/10</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Current Pot</div>
+                    <div class="stat-value" id="potSize">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Your Entries</div>
+                    <div class="stat-value" id="myEntries">0</div>
+                </div>
+            </div>
+
+            <div id="lotteryStatus"></div>
+
+            <div class="input-group">
+                <label for="entryCount">Number of Entries (100 DGRAM each):</label>
+                <input type="number" id="entryCount" min="1" max="10" value="1">
+            </div>
+
+            <button id="enterBtn" class="btn" disabled>
+                Enter Lottery (Send DGRAM)
+            </button>
+
+            <div id="status"></div>
+
+            <div class="prize-breakdown">
+                <h3>💰 Prize Breakdown (Per Round)</h3>
+                <div class="prize-item">
+                    <span>Entry Fee:</span>
+                    <strong>100 DGRAM</strong>
+                </div>
+                <div class="prize-item">
+                    <span>Total Pot:</span>
+                    <strong>1,000 DGRAM</strong>
+                </div>
+                <div class="prize-item">
+                    <span>Winner Prize (90%):</span>
+                    <strong>900 DGRAM</strong>
+                </div>
+                <div class="prize-item">
+                    <span>Burned (5%):</span>
+                    <strong>50 DGRAM</strong>
+                </div>
+                <div class="prize-item">
+                    <span>Platform Fee (5%):</span>
+                    <strong>50 DGRAM</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Current Players</h2>
+            <div id="playersList" class="players-list">
+                <p style="text-align: center; color: #999;">No players yet. Be the first!</p>
+            </div>
+        </div>
+
+        <div class="card contract-info">
+            <h3>📋 Contract Information</h3>
+            <p><strong>Lottery Contract Address:</strong></p>
+            <div class="contract-address" id="contractAddress">
+                Configure contract address in the code
+            </div>
+            <p style="margin-top: 15px;"><em>DGRAM is the native token - no token contract needed!</em></p>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION - UPDATE THESE VALUES AFTER DEPLOYMENT
+        const CONFIG = {
+            LOTTERY_CONTRACT: '0x2BcdBAaE637f15f99FFa0D5c6CA6a4276F687e35', // Your deployed lottery contract address
+            CHAIN_ID: '0x3c8', // Datagram L1 Chain ID in hex
+            RPC_URL: 'https://mainnet.datagram.network/rpc', // Datagram L1 RPC URL
+            EXPLORER_URL: 'https://explorer.datagram.network',
+            CHAIN_NAME: 'Datagram Network'
+        };
+
+        const ENTRY_FEE = ethers.parseEther('100'); // 100 DGRAM
+
+        // ABIs
+        const LOTTERY_ABI = [
+            "function enterLottery() external payable",
+            "function getPlayers() external view returns (address[])",
+            "function getPlayerCount() external view returns (uint256)",
+            "function getPlayerEntries(address) external view returns (uint256)",
+            "function lotteryId() external view returns (uint256)",
+            "function lotteryInProgress() external view returns (bool)",
+            "function getContractBalance() external view returns (uint256)",
+            "event PlayerEntered(address indexed player, uint256 lotteryId, uint256 entryNumber)",
+            "event WinnerSelected(address indexed winner, uint256 amount, uint256 lotteryId)"
+        ];
+
+        let provider, signer, lotteryContract, userAddress;
+
+        // Connect MetaMask
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    alert('Please install MetaMask!');
+                    return;
+                }
+
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+
+                // Check if on correct network
+                const network = await provider.getNetwork();
+                if (network.chainId.toString() !== parseInt(CONFIG.CHAIN_ID, 16).toString()) {
+                    await switchNetwork();
+                }
+
+                lotteryContract = new ethers.Contract(CONFIG.LOTTERY_CONTRACT, LOTTERY_ABI, signer);
+
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('walletAddress').textContent = userAddress;
+                document.getElementById('contractAddress').textContent = CONFIG.LOTTERY_CONTRACT;
+
+                document.getElementById('enterBtn').disabled = false;
+
+                // Get and display initial balance
+                const balance = await provider.getBalance(userAddress);
+                document.getElementById('balance').textContent = parseFloat(ethers.formatEther(balance)).toFixed(2);
+
+                await updateUI();
+                setupEventListeners();
+                showStatus('Connected successfully!', 'success');
+            } catch (error) {
+                console.error(error);
+                showStatus('Error connecting: ' + error.message, 'error');
+            }
+        });
+
+        // Switch to Datagram Network
+        async function switchNetwork() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: CONFIG.CHAIN_ID }],
+                });
+            } catch (error) {
+                if (error.code === 4902) {
+                    await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                            chainId: CONFIG.CHAIN_ID,
+                            chainName: CONFIG.CHAIN_NAME,
+                            rpcUrls: [CONFIG.RPC_URL],
+                            nativeCurrency: {
+                                name: 'DGRAM',
+                                symbol: 'DGRAM',
+                                decimals: 18
+                            },
+                            blockExplorerUrls: [CONFIG.EXPLORER_URL]
+                        }],
+                    });
+                }
+            }
         }
-      } catch (error) {
-        console.error("Error updating UI:", error);
-      }
-    }
 
-    function setupEventListeners() {
-      // prevent duplicate listeners if user reconnects
-      lotteryContract.removeAllListeners();
+        // Enter lottery with native DGRAM
+        document.getElementById('enterBtn').addEventListener('click', async () => {
+            try {
+                const entries = parseInt(document.getElementById('entryCount').value) || 1;
+                const totalCost = ENTRY_FEE * BigInt(entries);
+                
+                // Check balance
+                const balance = await provider.getBalance(userAddress);
+                if (balance < totalCost) {
+                    showStatus(`Insufficient balance! You need ${ethers.formatEther(totalCost)} DGRAM`, 'warning');
+                    return;
+                }
 
-      lotteryContract.on("PlayerEntered", async (player, lotteryId, entryNumber) => {
-        await updateUI();
-        if (player.toLowerCase() === userAddress.toLowerCase()) {
-          showStatus(`Entry confirmed! You are entry #${entryNumber}`, "success");
+                showStatus(`Entering lottery with ${entries} entries...`, 'info');
+                
+                // Enter multiple times if requested
+                for (let i = 0; i < entries; i++) {
+                    const tx = await lotteryContract.enterLottery({ value: ENTRY_FEE });
+                    showStatus(`Entry ${i+1}/${entries}: Waiting for confirmation...`, 'info');
+                    await tx.wait();
+                }
+                
+                showStatus(`Successfully entered ${entries} time(s)! Good luck! 🍀`, 'success');
+                await updateUI();
+            } catch (error) {
+                console.error(error);
+                showStatus('Error entering lottery: ' + error.message, 'error');
+            }
+        });
+
+        // Update UI
+        async function updateUI() {
+            try {
+                const [lotteryId, playerCount, players, myEntries, balance, inProgress] = await Promise.all([
+                    lotteryContract.lotteryId(),
+                    lotteryContract.getPlayerCount(),
+                    lotteryContract.getPlayers(),
+                    lotteryContract.getPlayerEntries(userAddress),
+                    provider.getBalance(userAddress),
+                    lotteryContract.lotteryInProgress()
+                ]);
+
+                document.getElementById('lotteryId').textContent = lotteryId.toString();
+                document.getElementById('playerCount').textContent = `${playerCount}/10`;
+                document.getElementById('potSize').textContent = `${Number(playerCount) * 100} DGRAM`;
+                document.getElementById('myEntries').textContent = myEntries.toString();
+                document.getElementById('balance').textContent = parseFloat(ethers.formatEther(balance)).toFixed(2);
+
+                // Update lottery status
+                const statusDiv = document.getElementById('lotteryStatus');
+                if (inProgress) {
+                    statusDiv.innerHTML = '<div class="alert alert-warning">⏳ Drawing winner... Please wait for Chainlink VRF to select the winner!</div>';
+                } else if (playerCount == 10) {
+                    statusDiv.innerHTML = '<div class="alert alert-info">🎲 Lottery full! Requesting random number...</div>';
+                } else {
+                    statusDiv.innerHTML = `<div class="alert alert-info">📢 ${10 - Number(playerCount)} more ${10 - Number(playerCount) === 1 ? 'player' : 'players'} needed to start the draw!</div>`;
+                }
+
+                // Update players list
+                const playersList = document.getElementById('playersList');
+                if (players.length === 0) {
+                    playersList.innerHTML = '<p style="text-align: center; color: #999;">No players yet. Be the first!</p>';
+                } else {
+                    playersList.innerHTML = players.map((addr, idx) => `
+                        <div class="player-entry">
+                            <span>Entry #${idx + 1}</span>
+                            <span>${addr.substring(0, 6)}...${addr.substring(38)}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error updating UI:', error);
+            }
         }
-      });
 
-      lotteryContract.on("WinnerSelected", async (winner, amount, lotteryId) => {
-        await updateUI();
-        const formattedAmount = ethers.formatEther(amount);
-        if (winner.toLowerCase() === userAddress.toLowerCase()) {
-          showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM!`, "success");
-        } else {
-          showStatus(`Winner selected: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, "info");
+        // Setup event listeners
+        function setupEventListeners() {
+            lotteryContract.on('PlayerEntered', async (player, lotteryId, entryNumber) => {
+                await updateUI();
+                if (player.toLowerCase() === userAddress.toLowerCase()) {
+                    showStatus(`Entry confirmed! You are entry #${entryNumber}`, 'success');
+                }
+            });
+
+            lotteryContract.on('WinnerSelected', async (winner, amount, lotteryId) => {
+                await updateUI();
+                const formattedAmount = ethers.formatEther(amount);
+                if (winner.toLowerCase() === userAddress.toLowerCase()) {
+                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM!`, 'success');
+                } else {
+                    showStatus(`Winner selected: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
+                }
+            });
         }
-      });
-    }
 
-    function showStatus(message, type) {
-      const statusDiv = document.getElementById("status");
-      const alertClass =
-        type === "success" ? "alert-success" :
-        type === "warning" ? "alert-warning" :
-        type === "error" ? "alert-warning" :
-        "alert-info";
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            const alertClass = type === 'success' ? 'alert-success' : 
+                             type === 'error' ? 'alert-warning' : 'alert-info';
+            statusDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 5000);
+            }
+        }
 
-      statusDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
-
-      if (type === "success" || type === "error") {
-        setTimeout(() => { statusDiv.innerHTML = ""; }, 5000);
-      }
-    }
-
-    setInterval(() => {
-      if (lotteryContract && userAddress) updateUI();
-    }, 10000);
-  </script>
+        // Update UI every 10 seconds
+        setInterval(() => {
+            if (lotteryContract) {
+                updateUI();
+            }
+        }, 10000);
+    </script>
 </body>
 </html>
