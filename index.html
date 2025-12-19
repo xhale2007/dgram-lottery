@@ -316,6 +316,13 @@
             </div>
         </div>
 
+        <div class="card">
+            <h2>🏆 Recent Winners</h2>
+            <div id="winnersHistory" class="players-list">
+                <p style="text-align: center; color: #999;">No winners yet...</p>
+            </div>
+        </div>
+
         <div class="card contract-info">
             <h3>📋 Contract Information</h3>
             <p><strong>Lottery Contract Address:</strong></p>
@@ -393,6 +400,7 @@
 
                 await updateUI();
                 setupEventListeners();
+                loadWinnersHistory(); // Load initial winners history
                 showStatus('Connected successfully!', 'success');
             } catch (error) {
                 console.error(error);
@@ -548,13 +556,57 @@
 
             lotteryContract.on('WinnerSelected', async (winner, amount, lotteryId) => {
                 await updateUI();
+                await loadWinnersHistory();
                 const formattedAmount = ethers.formatEther(amount);
                 if (winner.toLowerCase() === userAddress.toLowerCase()) {
-                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM!`, 'success');
+                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM in Round #${lotteryId}!`, 'success');
                 } else {
-                    showStatus(`Winner selected: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
+                    showStatus(`Winner selected for Round #${lotteryId}: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
                 }
             });
+        }
+
+        // Load winners history from events
+        async function loadWinnersHistory() {
+            try {
+                const currentBlock = await provider.getBlockNumber();
+                const fromBlock = Math.max(0, currentBlock - 10000); // Last ~10k blocks
+                
+                const filter = lotteryContract.filters.WinnerSelected();
+                const events = await lotteryContract.queryFilter(filter, fromBlock, currentBlock);
+                
+                const winnersDiv = document.getElementById('winnersHistory');
+                
+                if (events.length === 0) {
+                    winnersDiv.innerHTML = '<p style="text-align: center; color: #999;">No winners yet...</p>';
+                    return;
+                }
+                
+                // Reverse to show most recent first
+                const recentEvents = events.reverse().slice(0, 10); // Show last 10 winners
+                
+                winnersDiv.innerHTML = recentEvents.map(event => {
+                    const winner = event.args.winner;
+                    const amount = ethers.formatEther(event.args.amount);
+                    const roundId = event.args.lotteryId.toString();
+                    const isYou = winner.toLowerCase() === userAddress.toLowerCase();
+                    
+                    return `
+                        <div class="player-entry" style="${isYou ? 'background: #d4edda; border-left: 4px solid #28a745;' : ''}">
+                            <div>
+                                <strong>Round #${roundId}</strong><br>
+                                <span style="font-size: 0.85em;">${winner.substring(0, 10)}...${winner.substring(34)}</span>
+                                ${isYou ? '<span style="color: #28a745; font-weight: bold;"> (YOU!)</span>' : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <strong style="color: #667eea;">${parseFloat(amount).toFixed(0)} DGRAM</strong>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading winners history:', error);
+            }
         }
 
         // Show status message
