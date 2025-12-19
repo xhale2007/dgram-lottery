@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DGRAM Lottery - Win Big!</title>
+    <title>OnChainDraws - Win Big on the Blockchain!</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
         * {
@@ -14,10 +14,10 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a90e2 0%, #667eea 50%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-            color: #fff;
+            color: #1a1a2e;
         }
 
         .container {
@@ -31,15 +31,30 @@
             padding: 20px;
         }
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 450px;
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .subtitle {
-            font-size: 1.2em;
-            opacity: 0.9;
+            font-size: 1.3em;
+            opacity: 0.95;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-top: 10px;
+            color: #1a1a2e;
+            font-weight: 600;
         }
 
         .card {
@@ -59,11 +74,17 @@
         }
 
         .stat-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a90e2 0%, #667eea 50%, #764ba2 100%);
             padding: 20px;
             border-radius: 15px;
             text-align: center;
             color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
         }
 
         .stat-label {
@@ -75,11 +96,12 @@
         .stat-value {
             font-size: 2em;
             font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+            color: #1a1a2e;
             border: none;
             padding: 15px 30px;
             border-radius: 10px;
@@ -88,11 +110,12 @@
             transition: transform 0.2s, box-shadow 0.2s;
             width: 100%;
             font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.5);
         }
 
         .btn:disabled {
@@ -101,7 +124,8 @@
         }
 
         .btn-secondary {
-            background: #6c757d;
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
         }
 
         .wallet-section {
@@ -119,7 +143,7 @@
         }
 
         .contract-info {
-            background: #e7f3ff;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
@@ -191,16 +215,22 @@
         }
 
         .prize-breakdown {
-            background: #fff3cd;
-            padding: 15px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe0b2 100%);
+            padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
+            border: 2px solid #ff9800;
+        }
+
+        .prize-breakdown h3 {
+            color: #e65100;
+            margin-bottom: 15px;
         }
 
         .prize-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #ddd;
         }
 
@@ -340,6 +370,23 @@
         .modal-buttons button {
             flex: 1;
         }
+
+        /* Decorative elements */
+        h2 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 300px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
@@ -424,13 +471,15 @@
         </div>
 
         <header>
-            <h1>🎰 DGRAM Lottery</h1>
-            <p class="subtitle">Enter for a chance to win 900 DGRAM!</p>
+            <div class="logo-container">
+                <img src="onchaindraws_logo.png" alt="OnChainDraws" class="logo">
+            </div>
+            <p class="subtitle">🎲 Enter for a chance to win 900 DGRAM! 🎲</p>
         </header>
 
         <div class="card">
             <div class="wallet-section">
-                <button id="connectBtn" class="btn">Connect MetaMask</button>
+                <button id="connectBtn" class="btn">🔗 Connect MetaMask</button>
                 <div id="walletInfo" style="display: none;">
                     <p><strong>Connected Wallet:</strong></p>
                     <div class="wallet-address" id="walletAddress"></div>
@@ -440,7 +489,7 @@
         </div>
 
         <div class="card">
-            <h2>Current Lottery Status</h2>
+            <h2>🎰 Current Lottery Status</h2>
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-label">Current Round</div>
@@ -468,7 +517,7 @@
             </div>
 
             <button id="enterBtn" class="btn" disabled>
-                Enter Lottery (Send DGRAM)
+                🎯 Enter Lottery (Send DGRAM)
             </button>
 
             <div id="status"></div>
@@ -485,7 +534,7 @@
                 </div>
                 <div class="prize-item">
                     <span>Winner Prize (90%):</span>
-                    <strong>900 DGRAM</strong>
+                    <strong style="color: #28a745;">900 DGRAM</strong>
                 </div>
                 <div class="prize-item">
                     <span>Burned (5%):</span>
@@ -499,7 +548,7 @@
         </div>
 
         <div class="card">
-            <h2>Current Players</h2>
+            <h2>👥 Current Players</h2>
             <div id="playersList" class="players-list">
                 <p style="text-align: center; color: #999;">No players yet. Be the first!</p>
             </div>
