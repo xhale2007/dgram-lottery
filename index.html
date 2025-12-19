@@ -567,7 +567,7 @@
     <script>
         // CONFIGURATION - UPDATE THESE VALUES AFTER DEPLOYMENT
         const CONFIG = {
-            DRAW_CONTRACT: '0x2845Dd10cE6a8E2CB3AEEb4c9593079d56592316',
+            LOTTERY_CONTRACT: '0x2845Dd10cE6a8E2CB3AEEb4c9593079d56592316',
             CHAIN_ID: '0x3C8', // 968 in hex
             RPC_URL: 'https://mainnet.datagram.network/rpc',
             EXPLORER_URL: 'https://explorer.datagram.network',
@@ -577,19 +577,19 @@
         const ENTRY_FEE = ethers.parseEther('100'); // 100 DGRAM
 
         // ABIs
-        const DRAW_ABI = [
-            "function enterDraw() external payable",
+        const LOTTERY_ABI = [
+            "function enterLottery() external payable",
             "function getPlayers() external view returns (address[])",
             "function getPlayerCount() external view returns (uint256)",
             "function getPlayerEntries(address) external view returns (uint256)",
-            "function drawId() external view returns (uint256)",
-            "function drawInProgress() external view returns (bool)",
+            "function lotteryId() external view returns (uint256)",
+            "function lotteryInProgress() external view returns (bool)",
             "function getContractBalance() external view returns (uint256)",
-            "event PlayerEntered(address indexed player, uint256 drawId, uint256 entryNumber)",
-            "event WinnerSelected(address indexed winner, uint256 amount, uint256 drawId)"
+            "event PlayerEntered(address indexed player, uint256 lotteryId, uint256 entryNumber)",
+            "event WinnerSelected(address indexed winner, uint256 amount, uint256 lotteryId)"
         ];
 
-        let provider, signer, drawContract, userAddress;
+        let provider, signer, lotteryContract, userAddress;
         let termsAccepted = false;
 
         // Check if terms already accepted (stored in session)
@@ -656,7 +656,7 @@
                     return;
                 }
 
-                drawContract = new ethers.Contract(CONFIG.DRAW_CONTRACT, DRAW_ABI, signer);
+                lotteryContract = new ethers.Contract(CONFIG.LOTTERY_CONTRACT, LOTTERY_ABI, signer);
 
                 document.getElementById('walletInfo').style.display = 'block';
                 document.getElementById('connectBtn').style.display = 'none';
@@ -725,7 +725,7 @@
                 
                 // Enter multiple times if requested
                 for (let i = 0; i < entries; i++) {
-                    const tx = await drawContract.enterDraw({ value: ENTRY_FEE });
+                    const tx = await lotteryContract.enterLottery({ value: ENTRY_FEE });
                     showStatus(`Entry ${i+1}/${entries}: Waiting for confirmation...`, 'info');
                     await tx.wait();
                 }
@@ -748,11 +748,11 @@
                 console.log('Formatted balance:', ethers.formatEther(balance));
                 
                 console.log('=== CONTRACT DEBUG ===');
-                console.log('Contract address:', CONFIG.DRAW_CONTRACT);
+                console.log('Contract address:', CONFIG.LOTTERY_CONTRACT);
                 console.log('User address:', userAddress);
                 
                 // Check if contract exists
-                const code = await provider.getCode(CONFIG.DRAW_CONTRACT);
+                const code = await provider.getCode(CONFIG.LOTTERY_CONTRACT);
                 console.log('Contract code exists:', code !== '0x');
                 
                 if (code === '0x') {
@@ -761,27 +761,27 @@
                 }
                 
                 // Try to call contract functions one by one to see which fails
-                console.log('Calling drawId()...');
-                const drawId = await drawContract.drawId();
-                console.log('✓ drawId:', drawId.toString());
+                console.log('Calling lotteryId()...');
+                const lotteryId = await lotteryContract.lotteryId();
+                console.log('✓ lotteryId:', lotteryId.toString());
                 
                 console.log('Calling getPlayerCount()...');
-                const playerCount = await drawContract.getPlayerCount();
+                const playerCount = await lotteryContract.getPlayerCount();
                 console.log('✓ playerCount:', playerCount.toString());
                 
                 console.log('Calling getPlayers()...');
-                const players = await drawContract.getPlayers();
+                const players = await lotteryContract.getPlayers();
                 console.log('✓ players:', players);
                 
                 console.log('Calling getPlayerEntries()...');
-                const myEntries = await drawContract.getPlayerEntries(userAddress);
+                const myEntries = await lotteryContract.getPlayerEntries(userAddress);
                 console.log('✓ myEntries:', myEntries.toString());
                 
-                console.log('Calling drawInProgress()...');
-                const inProgress = await drawContract.drawInProgress();
+                console.log('Calling lotteryInProgress()...');
+                const inProgress = await lotteryContract.lotteryInProgress();
                 console.log('✓ inProgress:', inProgress);
 
-                document.getElementById('drawId').textContent = drawId.toString();
+                document.getElementById('drawId').textContent = lotteryId.toString();
                 document.getElementById('playerCount').textContent = `${playerCount}/10`;
                 document.getElementById('potSize').textContent = `${Number(playerCount) * 100} DGRAM`;
                 document.getElementById('myEntries').textContent = myEntries.toString();
@@ -820,21 +820,21 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            drawContract.on('PlayerEntered', async (player, drawId, entryNumber) => {
+            lotteryContract.on('PlayerEntered', async (player, lotteryId, entryNumber) => {
                 await updateUI();
                 if (player.toLowerCase() === userAddress.toLowerCase()) {
                     showStatus(`Entry confirmed! You are entry #${entryNumber}`, 'success');
                 }
             });
 
-            drawContract.on('WinnerSelected', async (winner, amount, drawId) => {
+            lotteryContract.on('WinnerSelected', async (winner, amount, lotteryId) => {
                 await updateUI();
                 await loadWinnersHistory();
                 const formattedAmount = ethers.formatEther(amount);
                 if (winner.toLowerCase() === userAddress.toLowerCase()) {
-                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM in Round #${drawId}!`, 'success');
+                    showStatus(`🎉 CONGRATULATIONS! You won ${formattedAmount} DGRAM in Round #${lotteryId}!`, 'success');
                 } else {
-                    showStatus(`Winner selected for Round #${drawId}: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
+                    showStatus(`Winner selected for Round #${lotteryId}: ${winner.substring(0, 6)}...${winner.substring(38)} won ${formattedAmount} DGRAM`, 'info');
                 }
             });
         }
@@ -845,8 +845,8 @@
                 const currentBlock = await provider.getBlockNumber();
                 const fromBlock = Math.max(0, currentBlock - 10000); // Last ~10k blocks
                 
-                const filter = drawContract.filters.WinnerSelected();
-                const events = await drawContract.queryFilter(filter, fromBlock, currentBlock);
+                const filter = lotteryContract.filters.WinnerSelected();
+                const events = await lotteryContract.queryFilter(filter, fromBlock, currentBlock);
                 
                 const winnersDiv = document.getElementById('winnersHistory');
                 
@@ -861,7 +861,7 @@
                 winnersDiv.innerHTML = recentEvents.map(event => {
                     const winner = event.args.winner;
                     const amount = ethers.formatEther(event.args.amount);
-                    const roundId = event.args.drawId.toString();
+                    const roundId = event.args.lotteryId.toString();
                     const isYou = winner.toLowerCase() === userAddress.toLowerCase();
                     
                     return `
@@ -898,7 +898,7 @@
 
         // Update UI every 10 seconds
         setInterval(() => {
-            if (drawContract) {
+            if (lotteryContract) {
                 updateUI();
             }
         }, 10000);
