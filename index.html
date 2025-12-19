@@ -230,10 +230,199 @@
             min-height: 20px;
             margin: 10px 0;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal-content h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .modal-content p, .modal-content ul, .modal-content ol {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .modal-content ul, .modal-content ol {
+            padding-left: 20px;
+        }
+
+        .modal-content li {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .modal-content strong {
+            color: #333;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box strong {
+            color: #ff9800;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            cursor: pointer;
+            font-weight: normal;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Terms Modal -->
+        <div id="termsModal" class="modal">
+            <div class="modal-content">
+                <h2>⚠️ Terms and Conditions</h2>
+                
+                <h3>Educational Purpose Only</h3>
+                <p>This lottery smart contract is provided <strong>for educational and entertainment purposes only</strong>. By participating, you acknowledge that this is an experimental decentralized application (dApp) demonstrating blockchain technology and smart contract functionality.</p>
+
+                <h3>Pseudo-Random Number Generation</h3>
+                <p>This lottery uses <strong>pseudo-random number generation</strong> based on blockchain data sources including:</p>
+                <ul>
+                    <li>Block timestamp and block number</li>
+                    <li>Avalanche's prevrandao (randomness beacon)</li>
+                    <li>Previous block hash</li>
+                    <li>Player addresses and contract state</li>
+                </ul>
+                <p>While this method provides sufficient unpredictability for educational purposes and small-scale lotteries, it is <strong>not cryptographically provable</strong> like Chainlink VRF or similar oracle-based solutions.</p>
+
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> This is NOT a true random number generator. For high-stakes applications, use oracle-based randomness solutions.
+                </div>
+
+                <h3>Decentralized & Non-Custodial</h3>
+                <p>This lottery is <strong>fully decentralized</strong>:</p>
+                <ul>
+                    <li>No one controls the smart contract after deployment</li>
+                    <li>Winner selection is automatic and deterministic</li>
+                    <li>All code is open-source and verifiable on-chain</li>
+                    <li>No central authority can manipulate results</li>
+                    <li>You maintain full custody of your funds until you choose to participate</li>
+                </ul>
+
+                <h3>How It Works</h3>
+                <ol>
+                    <li>10 players each send 100 DGRAM to enter</li>
+                    <li>When the 10th player enters, a winner is automatically selected</li>
+                    <li>Winner receives 900 DGRAM (90%)</li>
+                    <li>50 DGRAM is burned (5%)</li>
+                    <li>50 DGRAM goes to platform maintenance (5%)</li>
+                </ol>
+
+                <h3>Risks & Disclaimers</h3>
+                <ul>
+                    <li><strong>Smart Contract Risk:</strong> While tested, smart contracts may contain bugs</li>
+                    <li><strong>No Guarantees:</strong> Blockchain transactions are irreversible</li>
+                    <li><strong>Gas Fees:</strong> You pay network gas fees in addition to entry fee</li>
+                    <li><strong>Regulatory:</strong> Online gambling may be restricted in your jurisdiction</li>
+                    <li><strong>Loss of Funds:</strong> Only participate with funds you can afford to lose</li>
+                    <li><strong>No Customer Support:</strong> This is a decentralized application with no support team</li>
+                </ul>
+
+                <h3>Your Responsibilities</h3>
+                <p>By participating, you confirm that:</p>
+                <ul>
+                    <li>You are of legal age in your jurisdiction</li>
+                    <li>You understand blockchain technology and smart contracts</li>
+                    <li>You have read and understood these terms</li>
+                    <li>You accept all risks associated with participation</li>
+                    <li>You comply with all applicable laws in your jurisdiction</li>
+                </ul>
+
+                <div class="warning-box">
+                    <strong>⚠️ Participate at Your Own Risk:</strong> The contract creator and website operator assume no liability for any losses. This is experimental software.
+                </div>
+
+                <div class="checkbox-container">
+                    <input type="checkbox" id="acceptTerms">
+                    <label for="acceptTerms">
+                        I have read, understood, and agree to these terms and conditions. I understand this is for educational purposes only and uses pseudo-random number generation. I accept all risks and understand that no one can manipulate the decentralized lottery results.
+                    </label>
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="declineTerms()">Decline & Exit</button>
+                    <button class="btn" id="acceptTermsBtn" disabled onclick="acceptTerms()">Accept & Continue</button>
+                </div>
+            </div>
+        </div>
+
         <header>
             <h1>🎰 DGRAM Lottery</h1>
             <p class="subtitle">Enter for a chance to win 900 DGRAM!</p>
@@ -359,6 +548,42 @@
         ];
 
         let provider, signer, lotteryContract, userAddress;
+        let termsAccepted = false;
+
+        // Check if terms already accepted (stored in session)
+        window.addEventListener('DOMContentLoaded', () => {
+            const accepted = sessionStorage.getItem('termsAccepted');
+            if (!accepted) {
+                document.getElementById('termsModal').style.display = 'block';
+            } else {
+                termsAccepted = true;
+            }
+        });
+
+        // Enable accept button when checkbox is checked
+        document.getElementById('acceptTerms').addEventListener('change', function() {
+            document.getElementById('acceptTermsBtn').disabled = !this.checked;
+        });
+
+        // Accept terms
+        function acceptTerms() {
+            const checkbox = document.getElementById('acceptTerms');
+            if (checkbox.checked) {
+                termsAccepted = true;
+                sessionStorage.setItem('termsAccepted', 'true');
+                document.getElementById('termsModal').style.display = 'none';
+            }
+        }
+
+        // Decline terms
+        function declineTerms() {
+            alert('You must accept the terms to use this lottery. The page will now close.');
+            window.close();
+            // If window.close() doesn't work (some browsers block it), redirect away
+            setTimeout(() => {
+                window.location.href = 'about:blank';
+            }, 100);
+        }
 
         // Connect MetaMask
         document.getElementById('connectBtn').addEventListener('click', async () => {
@@ -438,6 +663,13 @@
         // Enter lottery with native DGRAM
         document.getElementById('enterBtn').addEventListener('click', async () => {
             try {
+                // Check if terms accepted
+                if (!termsAccepted) {
+                    document.getElementById('termsModal').style.display = 'block';
+                    showStatus('Please accept the terms and conditions first', 'warning');
+                    return;
+                }
+
                 const entries = parseInt(document.getElementById('entryCount').value) || 1;
                 const totalCost = ENTRY_FEE * BigInt(entries);
                 
